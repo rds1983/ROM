@@ -34,8 +34,6 @@
 #include <types.h>
 #else
 #include <sys/types.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 #endif
 
 #include "merc.h"
@@ -48,16 +46,6 @@
 #if !defined(macintosh)
 extern	int	_filbuf		args( (FILE *) );
 #endif
-
-#if !defined(OLD_RAND)
-#if !defined(linux)
-long random();
-#endif
-void srandom(unsigned int);
-int getpid();
-time_t time(time_t *tloc);
-#endif
-
 
 /* externals for counting purposes */
 extern	OBJ_DATA	*obj_free;
@@ -2295,7 +2283,7 @@ char *fread_word( FILE *fp )
  */
 void *alloc_mem( int sMem )
 {
-    void *pMem;
+    char *pMem;
     int *magic;
     int iList;
 
@@ -2336,7 +2324,7 @@ void *alloc_mem( int sMem )
  * Free some memory.
  * Recycle it back onto the free list for blocks of that size.
  */
-void free_mem( void *pMem, int sMem )
+void free_mem( char *pMem, int sMem )
 {
     int iList;
     int *magic;

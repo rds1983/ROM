@@ -34,7 +34,6 @@
 #include <types.h>
 #else
 #include <sys/types.h>
-#include <sys/time.h>
 #endif
 
 #include "merc.h"

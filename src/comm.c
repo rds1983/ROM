@@ -47,7 +47,6 @@
 #include <types.h>
 #else
 #include <sys/types.h>
-#include <sys/time.h>
 #endif
 
 #include <ctype.h>
@@ -56,6 +55,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <winsock.h>
 
 #include "merc.h"
 #include "interp.h"
@@ -100,7 +100,7 @@ extern	int	malloc_verify	args( ( void ) );
 /*
  * Socket and TCP/IP stuff.
  */
-#if	defined(macintosh) || defined(MSDOS)
+#if	defined(macintosh) || defined(_WIN32) || defined(_WIN64)
 const	char	echo_off_str	[] = { '\0' };
 const	char	echo_on_str	[] = { '\0' };
 const	char 	go_ahead_str	[] = { '\0' };
@@ -116,183 +116,6 @@ const	char	echo_off_str	[] = { IAC, WILL, TELOPT_ECHO, '\0' };
 const	char	echo_on_str	[] = { IAC, WONT, TELOPT_ECHO, '\0' };
 const	char 	go_ahead_str	[] = { IAC, GA, '\0' };
 #endif
-
-
-
-/*
- * OS-dependent declarations.
- */
-#if	defined(_AIX)
-#include <sys/select.h>
-int	accept		args( ( int s, struct sockaddr *addr, int *addrlen ) );
-int	bind		args( ( int s, struct sockaddr *name, int namelen ) );
-void	bzero		args( ( char *b, int length ) );
-int	getpeername	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	getsockname	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	gettimeofday	args( ( struct timeval *tp, struct timezone *tzp ) );
-int	listen		args( ( int s, int backlog ) );
-int	setsockopt	args( ( int s, int level, int optname, void *optval,
-			    int optlen ) );
-int	socket		args( ( int domain, int type, int protocol ) );
-#endif
-
-#if	defined(apollo)
-#include <unistd.h>
-void	bzero		args( ( char *b, int length ) );
-#endif
-
-#if	defined(__hpux)
-int	accept		args( ( int s, void *addr, int *addrlen ) );
-int	bind		args( ( int s, const void *addr, int addrlen ) );
-void	bzero		args( ( char *b, int length ) );
-int	getpeername	args( ( int s, void *addr, int *addrlen ) );
-int	getsockname	args( ( int s, void *name, int *addrlen ) );
-int	gettimeofday	args( ( struct timeval *tp, struct timezone *tzp ) );
-int	listen		args( ( int s, int backlog ) );
-int	setsockopt	args( ( int s, int level, int optname,
- 				const void *optval, int optlen ) );
-int	socket		args( ( int domain, int type, int protocol ) );
-#endif
-
-#if	defined(interactive)
-#include <net/errno.h>
-#include <sys/fnctl.h>
-#endif
-
-#if	defined(linux)
-/* 
-    Linux shouldn't need these. If you have a problem compiling, try
-    uncommenting these functions.
-*/
-/*
-int	accept		args( ( int s, struct sockaddr *addr, int *addrlen ) );
-int	bind		args( ( int s, struct sockaddr *name, int namelen ) );
-int	getpeername	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	getsockname	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	listen		args( ( int s, int backlog ) );
-*/
-
-int	close		args( ( int fd ) );
-int	gettimeofday	args( ( struct timeval *tp, struct timezone *tzp ) );
-int	read		args( ( int fd, char *buf, int nbyte ) );
-int	select		args( ( int width, fd_set *readfds, fd_set *writefds,
-			    fd_set *exceptfds, struct timeval *timeout ) );
-int	socket		args( ( int domain, int type, int protocol ) );
-int	write		args( ( int fd, char *buf, int nbyte ) );
-#endif
-
-#if	defined(macintosh)
-#include <console.h>
-#include <fcntl.h>
-#include <unix.h>
-struct	timeval
-{
-	time_t	tv_sec;
-	time_t	tv_usec;
-};
-#if	!defined(isascii)
-#define	isascii(c)		( (c) < 0200 )
-#endif
-static	long			theKeys	[4];
-
-int	gettimeofday		args( ( struct timeval *tp, void *tzp ) );
-#endif
-
-#if	defined(MIPS_OS)
-extern	int		errno;
-#endif
-
-#if	defined(MSDOS)
-int	gettimeofday	args( ( struct timeval *tp, void *tzp ) );
-int	kbhit		args( ( void ) );
-#endif
-
-#if	defined(NeXT)
-int	close		args( ( int fd ) );
-int	fcntl		args( ( int fd, int cmd, int arg ) );
-#if	!defined(htons)
-u_short	htons		args( ( u_short hostshort ) );
-#endif
-#if	!defined(ntohl)
-u_long	ntohl		args( ( u_long hostlong ) );
-#endif
-int	read		args( ( int fd, char *buf, int nbyte ) );
-int	select		args( ( int width, fd_set *readfds, fd_set *writefds,
-			    fd_set *exceptfds, struct timeval *timeout ) );
-int	write		args( ( int fd, char *buf, int nbyte ) );
-#endif
-
-#if	defined(sequent)
-int	accept		args( ( int s, struct sockaddr *addr, int *addrlen ) );
-int	bind		args( ( int s, struct sockaddr *name, int namelen ) );
-int	close		args( ( int fd ) );
-int	fcntl		args( ( int fd, int cmd, int arg ) );
-int	getpeername	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	getsockname	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	gettimeofday	args( ( struct timeval *tp, struct timezone *tzp ) );
-#if	!defined(htons)
-u_short	htons		args( ( u_short hostshort ) );
-#endif
-int	listen		args( ( int s, int backlog ) );
-#if	!defined(ntohl)
-u_long	ntohl		args( ( u_long hostlong ) );
-#endif
-int	read		args( ( int fd, char *buf, int nbyte ) );
-int	select		args( ( int width, fd_set *readfds, fd_set *writefds,
-			    fd_set *exceptfds, struct timeval *timeout ) );
-int	setsockopt	args( ( int s, int level, int optname, caddr_t optval,
-			    int optlen ) );
-int	socket		args( ( int domain, int type, int protocol ) );
-int	write		args( ( int fd, char *buf, int nbyte ) );
-#endif
-
-/* This includes Solaris Sys V as well */
-#if defined(sun)
-int	accept		args( ( int s, struct sockaddr *addr, int *addrlen ) );
-int	bind		args( ( int s, struct sockaddr *name, int namelen ) );
-void	bzero		args( ( char *b, int length ) );
-int	close		args( ( int fd ) );
-int	getpeername	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	getsockname	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	listen		args( ( int s, int backlog ) );
-int	read		args( ( int fd, char *buf, int nbyte ) );
-int	select		args( ( int width, fd_set *readfds, fd_set *writefds,
-			    fd_set *exceptfds, struct timeval *timeout ) );
-
-#if !defined(__SVR4)
-int	gettimeofday	args( ( struct timeval *tp, struct timezone *tzp ) );
-
-#if defined(SYSV)
-int setsockopt		args( ( int s, int level, int optname,
-			    const char *optval, int optlen ) );
-#else
-int	setsockopt	args( ( int s, int level, int optname, void *optval,
-			    int optlen ) );
-#endif
-#endif
-int	socket		args( ( int domain, int type, int protocol ) );
-int	write		args( ( int fd, char *buf, int nbyte ) );
-#endif
-
-#if defined(ultrix)
-int	accept		args( ( int s, struct sockaddr *addr, int *addrlen ) );
-int	bind		args( ( int s, struct sockaddr *name, int namelen ) );
-void	bzero		args( ( char *b, int length ) );
-int	close		args( ( int fd ) );
-int	getpeername	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	getsockname	args( ( int s, struct sockaddr *name, int *namelen ) );
-int	gettimeofday	args( ( struct timeval *tp, struct timezone *tzp ) );
-int	listen		args( ( int s, int backlog ) );
-int	read		args( ( int fd, char *buf, int nbyte ) );
-int	select		args( ( int width, fd_set *readfds, fd_set *writefds,
-			    fd_set *exceptfds, struct timeval *timeout ) );
-int	setsockopt	args( ( int s, int level, int optname, void *optval,
-			    int optlen ) );
-int	socket		args( ( int domain, int type, int protocol ) );
-int	write		args( ( int fd, char *buf, int nbyte ) );
-#endif
-
-
 
 /*
  * Global variables.
@@ -312,7 +135,7 @@ time_t		    current_time;	/* time of this pulse */
 /*
  * OS-dependent local functions.
  */
-#if defined(macintosh) || defined(MSDOS)
+#if defined(macintosh) || defined(_WIN32) || defined(_WIN64)
 void	game_loop_mac_msdos	args( ( void ) );
 bool	read_from_descriptor	args( ( DESCRIPTOR_DATA *d ) );
 bool	write_to_descriptor	args( ( int desc, char *txt, int length ) );
@@ -407,7 +230,7 @@ int main( int argc, char **argv )
     /*
      * Run the game.
      */
-#if defined(macintosh) || defined(MSDOS)
+#if defined(macintosh) || defined(_WIN32) || defined(_WIN64)
     boot_db( );
     log_string( "Merc is ready to rock." );
     game_loop_mac_msdos( );
@@ -496,7 +319,7 @@ int init_socket( int port )
 
 
 
-#if defined(macintosh) || defined(MSDOS)
+#if defined(macintosh) || defined(_WIN32) || defined(_WIN64)
 void game_loop_mac_msdos( void )
 {
     struct timeval last_time;
@@ -546,7 +369,7 @@ void game_loop_mac_msdos( void )
 	    d_next	= d->next;
 	    d->fcommand	= FALSE;
 
-#if defined(MSDOS)
+#if defined(_WIN32) || defined(_WIN64)
 	    if ( kbhit( ) )
 #endif
 	    {
@@ -638,7 +461,7 @@ void game_loop_mac_msdos( void )
 	{
 	    int delta;
 
-#if defined(MSDOS)
+#if defined(_WIN32) || defined(_WIN64)
 	    if ( kbhit( ) )
 #endif
 	    {
@@ -651,7 +474,7 @@ void game_loop_mac_msdos( void )
 		    dcon.outtop	= 0;
 		    close_socket( &dcon );
 		}
-#if defined(MSDOS)
+#if defined(_WIN32) || defined(_WIN64)
 		break;
 #endif
 	    }
@@ -1052,7 +875,7 @@ void close_socket( DESCRIPTOR_DATA *dclose )
 
     close( dclose->descriptor );
     free_descriptor(dclose);
-#if defined(MSDOS) || defined(macintosh)
+#if defined(_WIN32) || defined(_WIN64) || defined(macintosh)
     exit(1);
 #endif
     return;
@@ -1096,7 +919,7 @@ bool read_from_descriptor( DESCRIPTOR_DATA *d )
     }
 #endif
 
-#if defined(MSDOS) || defined(unix)
+#if defined(_WIN32) || defined(_WIN64) || defined(unix)
     for ( ; ; )
     {
 	int nRead;
@@ -1570,7 +1393,7 @@ bool write_to_descriptor( int desc, char *txt, int length )
     int nWrite;
     int nBlock;
 
-#if defined(macintosh) || defined(MSDOS)
+#if defined(macintosh) || defined(_WIN32) || defined(_WIN64)
     if ( desc == 0 )
 	desc = 1;
 #endif
@@ -2223,7 +2046,7 @@ bool check_parse_name( char *name )
     if ( strlen(name) <  2 )
 	return FALSE;
 
-#if defined(MSDOS)
+#if defined(_WIN32) || defined(_WIN64)
     if ( strlen(name) >  8 )
 	return FALSE;
 #endif
@@ -2610,16 +2433,3 @@ void act_new( const char *format, CHAR_DATA *ch, const void *arg1,
  
     return;
 }
-
-
-
-/*
- * Macintosh support functions.
- */
-#if defined(macintosh)
-int gettimeofday( struct timeval *tp, void *tzp )
-{
-    tp->tv_sec  = time( NULL );
-    tp->tv_usec = 0;
-}
-#endif

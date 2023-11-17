@@ -179,8 +179,6 @@ void show_skill_cmds( CHAR_DATA *ch, int tar )
     return;
 }
 
-
-
 /*****************************************************************************
  Name:		show_spec_cmds
  Purpose:	Displays settable special functions.
@@ -196,7 +194,7 @@ void show_spec_cmds( CHAR_DATA *ch )
     buf1[0] = '\0';
     col = 0;
     send_to_char( "Preceed special functions with 'spec_'\n\r\n\r", ch );
-    for (spec = 0; spec_table[spec].function[0] != '\0'; spec++)
+    for (spec = 0; spec_table[spec].function != NULL; spec++)
     {
 	sprintf( buf, "%-19.18s", &spec_table[spec].name[5] );
 	strcat( buf1, buf );
